@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"os/exec"
 
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
@@ -11,10 +12,11 @@ import (
 
 type model struct {
 	viewport *viewport.Model
-	choices  []string
+	choices  []entry
 	cursor   int
 	selected map[int]struct{}
 	header   string
+	err      error
 }
 
 func (m model) Init() tea.Cmd {
@@ -28,20 +30,16 @@ func (m model) View() string {
 	s := headerStyle.Render(m.header) + "\n"
 
 	// Iterate over choices
-	for i, choice := range m.choices {
+	for i, entry := range m.choices {
 		cursor := " " // nor cursor
 		// Cursor at point
 		if m.cursor == i {
 			cursor = ">" // cursor!
 		}
 
-		checked := " " // not selected
-		if _, ok := m.selected[i]; ok {
-			checked = "x" // Seleceted
-		}
-
 		// render the row
-		s += fmt.Sprintf("%s [%s] %s\n", cursor, checked, choice)
+		num := i + 1
+		s += fmt.Sprintf("%s %d. %s\n", cursor, num, entry.name)
 	}
 
 	render(m.viewport, s)
@@ -51,6 +49,7 @@ func (m model) View() string {
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
+		// fmt.Println("Key pressed: %s", msg.String())
 		switch msg.String() {
 		case "j", "down":
 			m.moveCursor(true)
@@ -61,16 +60,31 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 
 		case "enter":
-			// TODO:Something
-			_, ok := m.selected[m.cursor]
-			if ok {
-				fmt.Printf("%s\n", m.choices[m.cursor])
+			choice := m.choices[m.cursor]
+			return m, (dash(choice))
+			if _, ok := m.selected[m.cursor]; ok {
+				choice := m.choices[m.cursor]
+				return m, (dash(choice))
+			} else {
+				fmt.Println("err")
 			}
+		case "f": // Testing
+			cmd := func() tea.Msg { return tea.ExitAltScreen() }
+			return m, cmd
+
 		case "ctrl+c", "q":
 			return m, tea.Quit
 		}
 	}
 	return m, nil
+}
+
+func dash(entry entry) tea.Cmd {
+	command := fmt.Sprintf("cd ~%s", entry.path)
+	c := exec.Command(command)
+	return tea.ExecProcess(c, func(err error) tea.Msg {
+		return fmt.Errorf("%w", err)
+	})
 }
 
 func (m *model) moveCursor(down bool) {
@@ -118,7 +132,7 @@ func initialModel() (*model, error) {
 
 	return &model{
 		viewport: &vp,
-		choices:  []string{"Vippsnummer", "Shopingbasket"},
+		choices:  getMockEntries(),
 		selected: make(map[int]struct{}),
 		header:   header,
 	}, nil
