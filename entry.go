@@ -3,23 +3,24 @@ package main
 import "strings"
 
 type entry struct {
-	name string
-	path string
+	Name    string `json:"name"`
+	Path    string `json:"path"`
+	Command string `json:"command"`
 }
 
 func newEntry(path string) entry {
 	split := strings.Split(path, "/")
 	name := split[len(split)-1]
 	return entry{
-		name: name,
-		path: path,
+		Name: name,
+		Path: path,
 	}
 }
 
 // Testing
 func getMockEntries() []entry {
-	warlockEntry := newEntry("/users/john/warlock")
-	smashedEntry := newEntry("/users/john/smashed")
+	warlockEntry := newEntry("/Users/fredrik/vippsnummer")
+	smashedEntry := newEntry("/Users/fredrik/shopping-basket")
 	return []entry{
 		warlockEntry,
 		smashedEntry,

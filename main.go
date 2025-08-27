@@ -39,7 +39,11 @@ func (m model) View() string {
 
 		// render the row
 		num := i + 1
-		s += fmt.Sprintf("%s %d. %s\n", cursor, num, entry.name)
+		s += fmt.Sprintf("%s %d. %s\n", cursor, num, entry.Name)
+	}
+
+	if len(m.choices) == 0 {
+		s += fmt.Sprintf("No entries")
 	}
 
 	render(m.viewport, s)
@@ -60,14 +64,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 
 		case "enter":
-			choice := m.choices[m.cursor]
-			return m, (dash(choice))
-			if _, ok := m.selected[m.cursor]; ok {
-				choice := m.choices[m.cursor]
-				return m, (dash(choice))
-			} else {
-				fmt.Println("err")
-			}
+			return m, dash(m.choices[m.cursor])
 		case "f": // Testing
 			cmd := func() tea.Msg { return tea.ExitAltScreen() }
 			return m, cmd
@@ -80,10 +77,12 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func dash(entry entry) tea.Cmd {
-	command := fmt.Sprintf("cd ~%s", entry.path)
-	c := exec.Command(command)
-	return tea.ExecProcess(c, func(err error) tea.Msg {
-		return fmt.Errorf("%w", err)
+	cmd := exec.Command("sh", "-c", fmt.Sprintf("cd %s && exec $SHELL", entry.Path))
+	return tea.ExecProcess(cmd, func(err error) tea.Msg {
+		if err != nil {
+			return fmt.Errorf("failed to change directory: %w", err)
+		}
+		return tea.Quit()
 	})
 }
 
@@ -130,9 +129,14 @@ func initialModel() (*model, error) {
 		header = string(b)
 	}
 
+	loadedEntries, err := loadEntries()
+	if err != nil {
+		return nil, fmt.Errorf("loading data failed: %w", err)
+	}
+
 	return &model{
 		viewport: &vp,
-		choices:  getMockEntries(),
+		choices:  loadedEntries,
 		selected: make(map[int]struct{}),
 		header:   header,
 	}, nil
