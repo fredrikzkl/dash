@@ -69,3 +69,24 @@ func loadEntries() ([]entry, error) {
 
 	return entries, nil
 }
+
+func deleteEntry(entryToDelete entry) ([]entry, error) {
+	entries, err := loadEntries()
+	if err != nil {
+		return entries, err
+	}
+
+	newEntries := make([]entry, 0, len(entries))
+	for _, e := range entries {
+		if e != entryToDelete {
+			newEntries = append(newEntries, e)
+		}
+	}
+
+	err = saveEntries(newEntries)
+	if err != nil {
+		return entries, err
+	}
+
+	return newEntries, nil
+}

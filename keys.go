@@ -8,7 +8,9 @@ type keyMap struct {
 	Confirm key.Binding
 	Add     key.Binding
 	Command key.Binding
+	Delete  key.Binding
 	Help    key.Binding
+	Back    key.Binding
 	Quit    key.Binding
 }
 
@@ -30,6 +32,14 @@ var keys = keyMap{
 		key.WithKeys("c"),
 		key.WithHelp("c", "modify command"),
 	),
+	Delete: key.NewBinding(
+		key.WithKeys("d"),
+		key.WithHelp("d", "delete entry"),
+	),
+	Back: key.NewBinding(
+		key.WithKeys("esc"),
+		key.WithHelp("esc", "cancel"),
+	),
 	Quit: key.NewBinding(
 		key.WithKeys("q", "ctr+c"),
 	),
@@ -37,7 +47,7 @@ var keys = keyMap{
 
 func (k keyMap) ShortHelp() []key.Binding {
 	return []key.Binding{
-		k.Add, k.Command,
+		k.Add, k.Command, k.Delete,
 	}
 }
 

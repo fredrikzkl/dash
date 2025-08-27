@@ -3,11 +3,9 @@ package main
 import (
 	"fmt"
 	"os"
-	"os/exec"
 	"strings"
 
 	"github.com/charmbracelet/bubbles/help"
-	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/textinput"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
@@ -26,7 +24,7 @@ type model struct {
 
 	input textinput.Model
 
-	err error
+	state programState
 }
 
 func (m model) Init() tea.Cmd {
@@ -34,6 +32,24 @@ func (m model) Init() tea.Cmd {
 }
 
 func (m model) View() string {
+	var s string
+	switch m.state {
+	case MAIN_STATE:
+		s = mainView(m)
+	case ADD_STATE:
+		s += m.getDefaultAddInput()
+	}
+
+	render(m.viewport, s)
+
+	helpView := m.help.View(m.keys)
+	height := 1 - strings.Count(helpView, "\n")
+	spacing := strings.Repeat("\n", height)
+
+	return m.viewport.View() + spacing + helpView
+}
+
+func mainView(m model) string {
 	headerStyle := lipgloss.NewStyle().
 		MarginBottom(1)
 
@@ -55,55 +71,7 @@ func (m model) View() string {
 	if len(m.choices) == 0 {
 		s += "No entries"
 	}
-
-	s += m.getDefaultInputView()
-
-	render(m.viewport, s)
-
-	helpView := m.help.View(m.keys)
-	height := 1 - strings.Count(helpView, "\n")
-	spacing := strings.Repeat("\n", height)
-
-	return m.viewport.View() + spacing + helpView
-}
-
-func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	var cmd tea.Cmd
-	switch msg := msg.(type) {
-	case tea.KeyMsg:
-		switch {
-		case key.Matches(msg, m.keys.Down):
-			m.moveCursor(true)
-			return m, nil
-
-		case key.Matches(msg, m.keys.Up):
-			m.moveCursor(false)
-			return m, nil
-
-		case key.Matches(msg, m.keys.Confirm):
-			return m, dash(m.choices[m.cursor])
-
-		case key.Matches(msg, m.keys.Add):
-			// TODO: Add add!
-			return m, nil
-
-		case key.Matches(msg, m.keys.Quit):
-			return m, tea.Quit
-		}
-	}
-
-	m.input, cmd = m.input.Update(msg)
-	return m, cmd
-}
-
-func dash(entry entry) tea.Cmd {
-	cmd := exec.Command("sh", "-c", fmt.Sprintf("cd %s && exec $SHELL", entry.Path))
-	return tea.ExecProcess(cmd, func(err error) tea.Msg {
-		if err != nil {
-			return fmt.Errorf("failed to change directory: %w", err)
-		}
-		return tea.Quit()
-	})
+	return s
 }
 
 func (m *model) moveCursor(down bool) {
@@ -119,6 +87,10 @@ func (m *model) moveCursor(down bool) {
 			m.cursor = maxIndex
 		}
 	}
+}
+
+func (m *model) setState(state programState) {
+	m.state = state
 }
 
 func main() {
@@ -162,5 +134,6 @@ func initialModel() (*model, error) {
 		selected: make(map[int]struct{}),
 		header:   header,
 		input:    initalInputModel(),
+		state:    MAIN_STATE,
 	}, nil
 }

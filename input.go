@@ -15,10 +15,10 @@ func initalInputModel() textinput.Model {
 	return ti
 }
 
-func (m model) getDefaultInputView() string {
+func (m *model) getDefaultAddInput() string {
 	return fmt.Sprintf(
-		"Directory: \n\n%s\n\n%s",
+		"Add new directory: \n\n%s\n\n%s",
 		m.input.View(),
-		"(esc to quit)",
+		"(esc to cancel)",
 	) + "\n"
 }

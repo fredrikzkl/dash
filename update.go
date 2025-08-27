@@ -1,0 +1,83 @@
+package main
+
+import (
+	"github.com/charmbracelet/bubbles/key"
+	tea "github.com/charmbracelet/bubbletea"
+)
+
+func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	switch m.state {
+	case MAIN_STATE:
+		return mainUpdate(msg, m)
+	case ADD_STATE:
+		return addEntryUpdate(msg, m)
+	}
+
+	return m, nil
+}
+
+func mainUpdate(msg tea.Msg, m model) (model, tea.Cmd) {
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch {
+		case key.Matches(msg, m.keys.Down):
+			m.moveCursor(true)
+			return m, nil
+
+		case key.Matches(msg, m.keys.Up):
+			m.moveCursor(false)
+			return m, nil
+
+		case key.Matches(msg, m.keys.Confirm):
+			return m, dash(m.choices[m.cursor])
+
+		case key.Matches(msg, m.keys.Add):
+			m.setState(ADD_STATE)
+			// Set initial value when entering add state
+			pwd, err := getPwd()
+			if err == nil {
+				m.input.SetValue(pwd)
+				m.input.SetCursor(len(pwd)) // Position cursor at end
+			}
+			return m, nil
+
+		case key.Matches(msg, m.keys.Back):
+			m.setState(MAIN_STATE)
+			return m, nil
+
+		case key.Matches(msg, m.keys.Delete):
+			if len(m.choices) == 0 {
+				return m, nil
+			}
+			entries, _ := deleteEntry(m.choices[m.cursor])
+			m.choices = entries
+			m.cursor = 0
+			return m, nil
+
+		case key.Matches(msg, m.keys.Quit):
+			return m, tea.Quit
+		}
+	}
+	return m, nil
+}
+
+func addEntryUpdate(msg tea.Msg, m model) (model, tea.Cmd) {
+	var cmd tea.Cmd
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch {
+		case key.Matches(msg, m.keys.Confirm):
+			entry, cmd := addNewEntry(m.input.Value())
+			m.choices = append(m.choices, entry)
+			m.input.SetValue("")
+			m.setState(MAIN_STATE)
+			return m, cmd
+
+		case key.Matches(msg, m.keys.Back):
+			m.setState(MAIN_STATE)
+			return m, nil
+		}
+	}
+	m.input, cmd = m.input.Update(msg)
+	return m, cmd
+}
