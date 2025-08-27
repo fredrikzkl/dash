@@ -4,19 +4,26 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strings"
 
+	"github.com/charmbracelet/bubbles/help"
+	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
 
 type model struct {
+	keys keyMap
+	help help.Model
+
 	viewport *viewport.Model
 	choices  []entry
 	cursor   int
 	selected map[int]struct{}
 	header   string
-	err      error
+
+	err error
 }
 
 func (m model) Init() tea.Cmd {
@@ -43,33 +50,38 @@ func (m model) View() string {
 	}
 
 	if len(m.choices) == 0 {
-		s += fmt.Sprintf("No entries")
+		s += "No entries"
 	}
 
 	render(m.viewport, s)
-	return m.viewport.View()
+
+	helpView := m.help.View(m.keys)
+	height := 1 - strings.Count(helpView, "\n")
+	spacing := strings.Repeat("\n", height)
+
+	return m.viewport.View() + spacing + helpView
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		// fmt.Println("Key pressed: %s", msg.String())
-		switch msg.String() {
-		case "j", "down":
+		switch {
+		case key.Matches(msg, m.keys.Down):
 			m.moveCursor(true)
 			return m, nil
 
-		case "k", "up":
+		case key.Matches(msg, m.keys.Up):
 			m.moveCursor(false)
 			return m, nil
 
-		case "enter":
+		case key.Matches(msg, m.keys.Confirm):
 			return m, dash(m.choices[m.cursor])
-		case "f": // Testing
-			cmd := func() tea.Msg { return tea.ExitAltScreen() }
-			return m, cmd
 
-		case "ctrl+c", "q":
+		case key.Matches(msg, m.keys.Add):
+			// TODO: Add add!
+			return m, nil
+
+		case key.Matches(msg, m.keys.Quit):
 			return m, tea.Quit
 		}
 	}
@@ -135,6 +147,8 @@ func initialModel() (*model, error) {
 	}
 
 	return &model{
+		keys:     keys,
+		help:     help.New(),
 		viewport: &vp,
 		choices:  loadedEntries,
 		selected: make(map[int]struct{}),
