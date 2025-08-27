@@ -8,6 +8,7 @@ import (
 
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
+	"github.com/charmbracelet/bubbles/textinput"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -23,11 +24,13 @@ type model struct {
 	selected map[int]struct{}
 	header   string
 
+	input textinput.Model
+
 	err error
 }
 
 func (m model) Init() tea.Cmd {
-	return nil
+	return textinput.Blink
 }
 
 func (m model) View() string {
@@ -53,6 +56,8 @@ func (m model) View() string {
 		s += "No entries"
 	}
 
+	s += m.getDefaultInputView()
+
 	render(m.viewport, s)
 
 	helpView := m.help.View(m.keys)
@@ -63,6 +68,7 @@ func (m model) View() string {
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	var cmd tea.Cmd
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch {
@@ -85,7 +91,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		}
 	}
-	return m, nil
+
+	m.input, cmd = m.input.Update(msg)
+	return m, cmd
 }
 
 func dash(entry entry) tea.Cmd {
@@ -153,5 +161,6 @@ func initialModel() (*model, error) {
 		choices:  loadedEntries,
 		selected: make(map[int]struct{}),
 		header:   header,
+		input:    initalInputModel(),
 	}, nil
 }
