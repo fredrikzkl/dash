@@ -6,7 +6,7 @@ import (
 	"github.com/charmbracelet/bubbles/textinput"
 )
 
-func initalInputModel() textinput.Model {
+func newTextInput() textinput.Model {
 	ti := textinput.New()
 	ti.Placeholder = "Path"
 	ti.Focus()
