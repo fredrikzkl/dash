@@ -1,27 +1,27 @@
-package main
+package storage
 
 import "strings"
 
-type entry struct {
+type Entry struct {
 	Name    string `json:"name"`
 	Path    string `json:"path"`
 	Command string `json:"command"`
 }
 
-func newEntry(path string) entry {
+func NewEntry(path string) Entry {
 	split := strings.Split(path, "/")
 	name := split[len(split)-1]
-	return entry{
+	return Entry{
 		Name: name,
 		Path: path,
 	}
 }
 
 // Testing
-func getMockEntries() []entry {
-	warlockEntry := newEntry("/Users/fredrik/vippsnummer")
-	smashedEntry := newEntry("/Users/fredrik/shopping-basket")
-	return []entry{
+func getMockEntries() []Entry {
+	warlockEntry := NewEntry("/Users/fredrik/vippsnummer")
+	smashedEntry := NewEntry("/Users/fredrik/shopping-basket")
+	return []Entry{
 		warlockEntry,
 		smashedEntry,
 	}

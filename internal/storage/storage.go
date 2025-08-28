@@ -1,4 +1,4 @@
-package main
+package storage
 
 import (
 	"encoding/json"
@@ -22,7 +22,7 @@ func getEntriesFilePath() (string, error) {
 	return filepath.Join(configDir, "entries.json"), nil
 }
 
-func saveEntries(entries []entry) error {
+func SaveEntries(entries []Entry) error {
 	entriesPath, err := getEntriesFilePath()
 	if err != nil {
 		return err
@@ -42,16 +42,16 @@ func saveEntries(entries []entry) error {
 	return os.WriteFile(entriesPath, data, 0644)
 }
 
-func loadEntries() ([]entry, error) {
+func LoadEntries() ([]Entry, error) {
 	entriesPath, err := getEntriesFilePath()
 	if err != nil {
 		return nil, err
 	}
 
-	var entries []entry
+	var entries []Entry
 
 	if _, err := os.Stat(entriesPath); os.IsNotExist(err) {
-		if err := saveEntries(entries); err != nil {
+		if err := SaveEntries(entries); err != nil {
 			return entries, err
 		}
 		return entries, nil
@@ -70,20 +70,20 @@ func loadEntries() ([]entry, error) {
 	return entries, nil
 }
 
-func deleteEntry(entryToDelete entry) ([]entry, error) {
-	entries, err := loadEntries()
+func DeleteEntry(entryToDelete Entry) ([]Entry, error) {
+	entries, err := LoadEntries()
 	if err != nil {
 		return entries, err
 	}
 
-	newEntries := make([]entry, 0, len(entries))
+	newEntries := make([]Entry, 0, len(entries))
 	for _, e := range entries {
 		if e != entryToDelete {
 			newEntries = append(newEntries, e)
 		}
 	}
 
-	err = saveEntries(newEntries)
+	err = SaveEntries(newEntries)
 	if err != nil {
 		return entries, err
 	}

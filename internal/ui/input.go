@@ -1,4 +1,4 @@
-package main
+package ui
 
 import (
 	"fmt"
@@ -15,7 +15,7 @@ func initalInputModel() textinput.Model {
 	return ti
 }
 
-func (m *model) getDefaultAddInput() string {
+func (m *Model) getDefaultAddInput() string {
 	return fmt.Sprintf(
 		"Add new directory: \n\n%s\n\n%s",
 		m.input.View(),

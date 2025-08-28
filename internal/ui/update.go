@@ -1,11 +1,12 @@
-package main
+package ui
 
 import (
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/fredrikzkl/dash/internal/storage"
 )
 
-func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch m.state {
 	case MAIN_STATE:
 		return mainUpdate(msg, m)
@@ -16,7 +17,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func mainUpdate(msg tea.Msg, m model) (model, tea.Cmd) {
+func mainUpdate(msg tea.Msg, m Model) (Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch {
@@ -33,7 +34,7 @@ func mainUpdate(msg tea.Msg, m model) (model, tea.Cmd) {
 
 		case key.Matches(msg, m.keys.Add):
 			m.setState(ADD_STATE)
-			// Set initial value when entering add state
+
 			pwd, err := getPwd()
 			if err == nil {
 				m.input.SetValue(pwd)
@@ -49,7 +50,7 @@ func mainUpdate(msg tea.Msg, m model) (model, tea.Cmd) {
 			if len(m.choices) == 0 {
 				return m, nil
 			}
-			entries, _ := deleteEntry(m.choices[m.cursor])
+			entries, _ := storage.DeleteEntry(m.choices[m.cursor])
 			m.choices = entries
 			m.cursor = 0
 			return m, nil
@@ -61,7 +62,7 @@ func mainUpdate(msg tea.Msg, m model) (model, tea.Cmd) {
 	return m, nil
 }
 
-func addEntryUpdate(msg tea.Msg, m model) (model, tea.Cmd) {
+func addEntryUpdate(msg tea.Msg, m Model) (Model, tea.Cmd) {
 	var cmd tea.Cmd
 	switch msg := msg.(type) {
 	case tea.KeyMsg:

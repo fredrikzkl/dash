@@ -1,4 +1,4 @@
-package main
+package ui
 
 import (
 	"fmt"
@@ -6,9 +6,10 @@ import (
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
+	s "github.com/fredrikzkl/dash/internal/storage"
 )
 
-func dash(entry entry) tea.Cmd {
+func dash(entry s.Entry) tea.Cmd {
 	cmd := exec.Command("sh", "-c", fmt.Sprintf("cd %s && exec $SHELL", entry.Path))
 	return tea.ExecProcess(cmd, func(err error) tea.Msg {
 		if err != nil {
@@ -18,17 +19,17 @@ func dash(entry entry) tea.Cmd {
 	})
 }
 
-func addNewEntry(inputPath string) (entry, tea.Cmd) {
-	entry := newEntry(inputPath)
+func addNewEntry(inputPath string) (s.Entry, tea.Cmd) {
+	entry := s.NewEntry(inputPath)
 
-	storedEntries, err := loadEntries()
+	storedEntries, err := s.LoadEntries()
 	if err != nil {
 		return entry, func() tea.Msg { return err }
 	}
 
 	storedEntries = append(storedEntries, entry)
 
-	err = saveEntries(storedEntries)
+	err = s.SaveEntries(storedEntries)
 	if err != nil {
 		return entry, func() tea.Msg { return err }
 	}
