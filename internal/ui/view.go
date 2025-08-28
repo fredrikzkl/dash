@@ -16,6 +16,9 @@ func (m Model) View() string {
 		s += m.getDefaultAddInput()
 	}
 
+	lineCount := strings.Count(s, "\n")
+	m.viewport.Height = lineCount + 4
+
 	render(m.viewport, s)
 
 	helpView := m.help.View(m.keys)
@@ -27,21 +30,27 @@ func (m Model) View() string {
 
 func mainView(m Model) string {
 	headerStyle := lipgloss.NewStyle().
+		Italic(true).
 		MarginBottom(1)
+
+	hoverStyle := lipgloss.NewStyle().
+		Background(lipgloss.Color("4")) // 4
 
 	s := headerStyle.Render(m.header) + "\n"
 
 	// Iterate over choices
 	for i, entry := range m.choices {
-		cursor := " " // nor cursor
+		num := i + 1
+		cursor := " " // no cursor
+
 		// Cursor at point
 		if m.cursor == i {
 			cursor = ">" // cursor!
+			s += hoverStyle.Render(fmt.Sprintf("%s %d. %s", cursor, num, entry.Name))
+			s += "\n"
+		} else {
+			s += fmt.Sprintf("%s %d. %s\n", cursor, num, entry.Name)
 		}
-
-		// render the row
-		num := i + 1
-		s += fmt.Sprintf("%s %d. %s\n", cursor, num, entry.Name)
 	}
 
 	if len(m.choices) == 0 {

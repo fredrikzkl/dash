@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	vp_width  = 78
+	vp_width  = 50
 	vp_height = 20
 )
 
@@ -15,9 +15,9 @@ func newViewport() (viewport.Model, error) {
 
 	vp.Style = lipgloss.NewStyle().
 		BorderStyle(lipgloss.RoundedBorder()).
-		BorderForeground(lipgloss.Color("62")).
-		PaddingLeft(4).
-		PaddingRight(4)
+		BorderForeground(lipgloss.Color("1")).
+		Padding(1).
+		PaddingLeft(2)
 
 	return vp, nil
 }
