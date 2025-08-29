@@ -3,8 +3,6 @@ package ui
 import (
 	"fmt"
 	"strings"
-
-	"github.com/charmbracelet/lipgloss"
 )
 
 func (m Model) View() string {
@@ -19,7 +17,7 @@ func (m Model) View() string {
 	lineCount := strings.Count(s, "\n")
 	m.viewport.Height = lineCount + 4
 
-	render(m.viewport, s)
+	m.viewport.SetContent(s)
 
 	helpView := m.help.View(m.keys)
 	height := 1 - strings.Count(helpView, "\n")
@@ -29,13 +27,6 @@ func (m Model) View() string {
 }
 
 func mainView(m Model) string {
-	headerStyle := lipgloss.NewStyle().
-		Italic(true).
-		MarginBottom(1)
-
-	hoverStyle := lipgloss.NewStyle().
-		Background(lipgloss.Color("4")) // 4
-
 	s := headerStyle.Render(m.header) + "\n"
 
 	// Iterate over choices

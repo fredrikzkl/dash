@@ -27,10 +27,8 @@ func (m Model) Init() tea.Cmd {
 }
 
 func InitialModel() (*Model, error) {
-	vp, err := newViewport()
-	if err != nil {
-		return nil, fmt.Errorf("failed to create viewport: %w", err)
-	}
+	vp := viewport.New(vp_width, vp_height)
+	vp.Style = standardViewportStyle
 
 	header := "dash"
 

@@ -6,6 +6,21 @@ import (
 	"github.com/charmbracelet/bubbles/textinput"
 )
 
+type inputView struct {
+	description string
+	placeholder string
+}
+
+var newEntryInputView = inputView{
+	description: "Add new directory",
+	placeholder: "Path",
+}
+
+var modifyCmdInputView = inputView{
+	description: "Set cmd",
+	placeholder: "e.g nvim",
+}
+
 func newTextInput() textinput.Model {
 	ti := textinput.New()
 	ti.Placeholder = "Path"
