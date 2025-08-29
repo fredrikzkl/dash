@@ -10,8 +10,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch m.state {
 	case MAIN_STATE:
 		return mainUpdate(msg, m)
-	case ADD_STATE:
-		return addEntryUpdate(msg, m)
+	case ADD_STATE, COMMAND_STATE:
+		return inputUpdate(msg, m, newEntryInputView)
 	}
 
 	return m, nil
@@ -37,9 +37,22 @@ func mainUpdate(msg tea.Msg, m Model) (Model, tea.Cmd) {
 
 			pwd, err := getPwd()
 			if err == nil {
-				m.input.SetValue(pwd)
-				m.input.SetCursor(len(pwd)) // Position cursor at end
+				presetInput(&m, pwd)
 			}
+			return m, nil
+
+		case key.Matches(msg, m.keys.Command):
+			m.setState(COMMAND_STATE)
+
+			if !choiceExists(m) {
+				return m, nil
+			}
+
+			currentCmd := m.choices[m.cursor].Command
+			if currentCmd != "" {
+				presetInput(&m, currentCmd)
+			}
+
 			return m, nil
 
 		case key.Matches(msg, m.keys.Back):
@@ -62,14 +75,13 @@ func mainUpdate(msg tea.Msg, m Model) (Model, tea.Cmd) {
 	return m, nil
 }
 
-func addEntryUpdate(msg tea.Msg, m Model) (Model, tea.Cmd) {
+func inputUpdate(msg tea.Msg, m Model, iw inputView) (Model, tea.Cmd) {
 	var cmd tea.Cmd
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch {
 		case key.Matches(msg, m.keys.Confirm):
-			entry, cmd := addNewEntry(m.input.Value())
-			m.choices = append(m.choices, entry)
+			iw.confirmAction(&m, m.input.Value())
 			m.input.SetValue("")
 			m.setState(MAIN_STATE)
 			return m, cmd
@@ -81,4 +93,8 @@ func addEntryUpdate(msg tea.Msg, m Model) (Model, tea.Cmd) {
 	}
 	m.input, cmd = m.input.Update(msg)
 	return m, cmd
+}
+
+func choiceExists(m Model) bool {
+	return m.cursor >= 0 && m.cursor < len(m.choices)
 }

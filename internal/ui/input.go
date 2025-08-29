@@ -4,16 +4,23 @@ import (
 	"fmt"
 
 	"github.com/charmbracelet/bubbles/textinput"
+	tea "github.com/charmbracelet/bubbletea"
 )
 
 type inputView struct {
-	description string
-	placeholder string
+	description   string
+	placeholder   string
+	confirmAction func(m *Model, input string) tea.Cmd
 }
 
 var newEntryInputView = inputView{
 	description: "Add new directory",
 	placeholder: "Path",
+	confirmAction: func(m *Model, input string) tea.Cmd {
+		entry, cmd := addNewEntry(m.input.Value())
+		m.choices = append(m.choices, entry)
+		return cmd
+	},
 }
 
 var modifyCmdInputView = inputView{
@@ -30,9 +37,16 @@ func newTextInput() textinput.Model {
 	return ti
 }
 
-func (m *Model) getDefaultAddInput() string {
+func presetInput(m *Model, val string) {
+	m.input.SetValue(val)
+	m.input.SetCursor(len(val))
+}
+
+func (m *Model) getInputView(inputView inputView) string {
+	m.input.Placeholder = inputView.placeholder
 	return fmt.Sprintf(
-		"Add new directory: \n\n%s\n\n%s",
+		"%s \n\n%s\n\n%s",
+		inputView.description,
 		m.input.View(),
 		"(esc to cancel)",
 	) + "\n"

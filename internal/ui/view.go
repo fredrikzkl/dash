@@ -11,7 +11,9 @@ func (m Model) View() string {
 	case MAIN_STATE:
 		s = mainView(m)
 	case ADD_STATE:
-		s += m.getDefaultAddInput()
+		s += m.getInputView(newEntryInputView)
+	case COMMAND_STATE:
+		s += m.getInputView(modifyCmdInputView)
 	}
 
 	lineCount := strings.Count(s, "\n")
@@ -49,3 +51,7 @@ func mainView(m Model) string {
 	}
 	return s
 }
+
+// func inputView(m Model, iv inputView) string {
+// 	s += m.getDefaultAddInput()
+// }
