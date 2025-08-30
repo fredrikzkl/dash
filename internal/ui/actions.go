@@ -37,6 +37,20 @@ func addNewEntry(inputPath string) (s.Entry, tea.Cmd) {
 	return entry, nil
 }
 
+func editCommand(m *Model) tea.Cmd {
+	if !choiceExists(*m) {
+		return nil
+	}
+
+	m.choices[m.cursor].Command = m.input.Value()
+
+	if err := s.SaveEntries(m.choices); err != nil {
+		return func() tea.Msg { return err }
+	}
+
+	return nil
+}
+
 func getPwd() (string, error) {
 	out, err := exec.Command("pwd").Output()
 	if err != nil {

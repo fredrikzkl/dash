@@ -23,14 +23,17 @@ var newEntryInputView = inputView{
 	},
 }
 
-var modifyCmdInputView = inputView{
+var editCmdInputView = inputView{
 	description: "Set cmd",
 	placeholder: "e.g nvim",
+	confirmAction: func(m *Model, input string) tea.Cmd {
+		cmd := editCommand(m)
+		return cmd
+	},
 }
 
 func newTextInput() textinput.Model {
 	ti := textinput.New()
-	ti.Placeholder = "Path"
 	ti.Focus()
 	ti.CharLimit = 200
 	ti.Width = 25
