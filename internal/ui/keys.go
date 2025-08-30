@@ -3,15 +3,16 @@ package ui
 import "github.com/charmbracelet/bubbles/key"
 
 type keyMap struct {
-	Down    key.Binding
-	Up      key.Binding
-	Confirm key.Binding
-	Add     key.Binding
-	Command key.Binding
-	Delete  key.Binding
-	Help    key.Binding
-	Back    key.Binding
-	Quit    key.Binding
+	Down          key.Binding
+	Up            key.Binding
+	Confirm       key.Binding
+	Add           key.Binding
+	Command       key.Binding
+	ToggleCommand key.Binding
+	Delete        key.Binding
+	Help          key.Binding
+	Back          key.Binding
+	Quit          key.Binding
 }
 
 var keys = keyMap{
@@ -30,7 +31,11 @@ var keys = keyMap{
 	),
 	Command: key.NewBinding(
 		key.WithKeys("c"),
-		key.WithHelp("c", "modify command"),
+		key.WithHelp("c", "edit cmd"),
+	),
+	ToggleCommand: key.NewBinding(
+		key.WithKeys("space"),
+		key.WithHelp("space", "toggle cmd"),
 	),
 	Delete: key.NewBinding(
 		key.WithKeys("d"),
