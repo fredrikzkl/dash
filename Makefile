@@ -45,3 +45,6 @@ vet:
 
 modernize:
 	modernize -fix ./...
+
+tail:
+	tail -f debug.log
