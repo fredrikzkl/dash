@@ -48,3 +48,6 @@ modernize:
 
 tail:
 	tail -f debug.log
+
+clear-debug:
+	> debug.log
