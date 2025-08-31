@@ -24,8 +24,7 @@ fix-imports:
 build:
 	go build -o dash .
 
-install:
-	build
+install: build
 	sudo mv dash /usr/local/bin/dash
 
 run:
