@@ -1,12 +1,9 @@
 package ui
 
 import (
-	"fmt"
-
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/fredrikzkl/dash/internal/storage"
-	"github.com/fredrikzkl/dash/utils"
 )
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -35,7 +32,7 @@ func mainUpdate(msg tea.Msg, m Model) (Model, tea.Cmd) {
 			return m, nil
 
 		case key.Matches(msg, m.keys.Confirm):
-			return m, dash(m.choices[m.cursor])
+			return m, dash(m.choices[m.cursor], m.cmdToggled)
 
 			// New entry input
 		case key.Matches(msg, m.keys.Add):
@@ -60,6 +57,13 @@ func mainUpdate(msg tea.Msg, m Model) (Model, tea.Cmd) {
 				presetInput(&m, currentCmd)
 			}
 
+			return m, nil
+
+		case key.Matches(msg, m.keys.ToggleCommand):
+			if m.choices[m.cursor].Command == "" {
+				return m, nil
+			}
+			toggleCmd(&m)
 			return m, nil
 
 		case key.Matches(msg, m.keys.Back):
@@ -88,9 +92,6 @@ func inputUpdate(msg tea.Msg, m Model, iw inputView) (Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch {
 		case key.Matches(msg, m.keys.Confirm):
-			str := fmt.Sprintf("%+v", iw)
-			utils.DebugLog(str)
-
 			iw.confirmAction(&m, m.input.Value())
 			m.input.SetValue("")
 			m.setState(MAIN_STATE)

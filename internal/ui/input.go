@@ -27,8 +27,8 @@ var editCmdInputView = inputView{
 	description: "Set cmd",
 	placeholder: "e.g nvim",
 	confirmAction: func(m *Model, input string) tea.Cmd {
-		cmd := editCommand(m)
-		return cmd
+		editCommand(m)
+		return nil
 	},
 }
 

@@ -19,3 +19,9 @@ var headerStyle = lipgloss.NewStyle().
 
 var hoverStyle = lipgloss.NewStyle().
 	Background(lipgloss.Color("4"))
+
+var cmdToggledStyle = lipgloss.NewStyle().
+	Background(lipgloss.Color("5"))
+
+var cmdText = lipgloss.NewStyle().
+	Foreground(lipgloss.Color("#efefef"))

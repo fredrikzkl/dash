@@ -34,7 +34,7 @@ var keys = keyMap{
 		key.WithHelp("c", "edit cmd"),
 	),
 	ToggleCommand: key.NewBinding(
-		key.WithKeys("space"),
+		key.WithKeys(" "),
 		key.WithHelp("space", "toggle cmd"),
 	),
 	Delete: key.NewBinding(
@@ -52,7 +52,7 @@ var keys = keyMap{
 
 func (k keyMap) ShortHelp() []key.Binding {
 	return []key.Binding{
-		k.Add, k.Command, k.Delete,
+		k.Add, k.Command, k.ToggleCommand, k.Delete,
 	}
 }
 

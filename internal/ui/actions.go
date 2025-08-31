@@ -9,11 +9,16 @@ import (
 	s "github.com/fredrikzkl/dash/internal/storage"
 )
 
-func dash(entry s.Entry) tea.Cmd {
-	cmd := exec.Command("sh", "-c", fmt.Sprintf("cd %s && exec $SHELL", entry.Path))
+func dash(entry s.Entry, executeCommand bool) tea.Cmd {
+	var customCommand string
+	if executeCommand && entry.Command != "" {
+		customCommand += fmt.Sprintf("&& %s", entry.Command)
+	}
+
+	cmd := exec.Command("sh", "-c", fmt.Sprintf("cd %s %s && exec $SHELL", entry.Path, customCommand))
 	return tea.ExecProcess(cmd, func(err error) tea.Msg {
 		if err != nil {
-			return fmt.Errorf("failed to change directory: %w", err)
+			return fmt.Errorf("failed to exectue dash: %w", err)
 		}
 		return tea.Quit()
 	})
@@ -37,7 +42,7 @@ func addNewEntry(inputPath string) (s.Entry, tea.Cmd) {
 	return entry, nil
 }
 
-func editCommand(m *Model) tea.Cmd {
+func editCommand(m *Model) error {
 	if !choiceExists(*m) {
 		return nil
 	}
@@ -45,10 +50,14 @@ func editCommand(m *Model) tea.Cmd {
 	m.choices[m.cursor].Command = m.input.Value()
 
 	if err := s.SaveEntries(m.choices); err != nil {
-		return func() tea.Msg { return err }
+		return err
 	}
 
 	return nil
+}
+
+func toggleCmd(m *Model) {
+	m.cmdToggled = !m.cmdToggled
 }
 
 func getPwd() (string, error) {

@@ -39,7 +39,13 @@ func mainView(m Model) string {
 		// Cursor at point
 		if m.cursor == i {
 			cursor = ">" // cursor!
-			s += hoverStyle.Render(fmt.Sprintf("%s %d. %s", cursor, num, entry.Name))
+			line := fmt.Sprintf("%s %d. %s", cursor, num, entry.Name)
+			if m.cmdToggled && entry.Command != "" {
+				// line += cmdText.Render(" ", entry.Command, " ")
+				s += cmdToggledStyle.Render(line) + cmdText.Render(" ", entry.Command, " ")
+			} else {
+				s += hoverStyle.Render(line)
+			}
 			s += "\n"
 		} else {
 			s += fmt.Sprintf("%s %d. %s\n", cursor, num, entry.Name)

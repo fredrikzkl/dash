@@ -14,12 +14,14 @@ type Model struct {
 	keys     keyMap
 	help     help.Model
 	viewport *viewport.Model
-	choices  []storage.Entry
-	cursor   int
-	selected map[int]struct{}
-	header   string
-	input    textinput.Model
-	state    State
+
+	choices    []storage.Entry
+	cursor     int
+	cmdToggled bool
+
+	header string
+	input  textinput.Model
+	state  State
 }
 
 func (m Model) Init() tea.Cmd {
@@ -38,21 +40,25 @@ func InitialModel() (*Model, error) {
 	}
 
 	return &Model{
-		keys:     keys,
-		help:     help.New(),
-		viewport: &vp,
-		choices:  entries,
-		selected: make(map[int]struct{}),
-		header:   header,
-		input:    newTextInput(),
-		state:    MAIN_STATE,
-		cursor:   0,
+		keys:       keys,
+		help:       help.New(),
+		viewport:   &vp,
+		choices:    entries,
+		cursor:     0,
+		cmdToggled: false,
+		header:     header,
+		input:      newTextInput(),
+		state:      MAIN_STATE,
 	}, nil
 }
 
 func (m *Model) moveCursor(down bool) {
 	if len(m.choices) == 0 {
 		return
+	}
+
+	if m.cmdToggled {
+		toggleCmd(m)
 	}
 
 	maxIndex := len(m.choices) - 1
