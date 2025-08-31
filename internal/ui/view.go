@@ -8,11 +8,11 @@ import (
 func (m Model) View() string {
 	var s string
 	switch m.state {
-	case MAIN_STATE:
+	case MainState:
 		s = mainView(m)
-	case ADD_STATE:
+	case AddState:
 		s += m.getInputView(newEntryInputView)
-	case COMMAND_STATE:
+	case CommandState:
 		s += m.getInputView(editCmdInputView)
 	}
 

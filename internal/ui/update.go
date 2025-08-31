@@ -8,11 +8,11 @@ import (
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch m.state {
-	case MAIN_STATE:
+	case MainState:
 		return mainUpdate(msg, m)
-	case ADD_STATE:
+	case AddState:
 		return inputUpdate(msg, m, newEntryInputView)
-	case COMMAND_STATE:
+	case CommandState:
 		return inputUpdate(msg, m, editCmdInputView)
 	}
 
@@ -36,7 +36,7 @@ func mainUpdate(msg tea.Msg, m Model) (Model, tea.Cmd) {
 
 			// New entry input
 		case key.Matches(msg, m.keys.Add):
-			m.setState(ADD_STATE)
+			m.setState(AddState)
 
 			pwd, err := getPwd()
 			if err == nil {
@@ -46,7 +46,7 @@ func mainUpdate(msg tea.Msg, m Model) (Model, tea.Cmd) {
 
 			// Command Input
 		case key.Matches(msg, m.keys.Command):
-			m.setState(COMMAND_STATE)
+			m.setState(CommandState)
 
 			if !choiceExists(m) {
 				return m, nil
@@ -67,7 +67,7 @@ func mainUpdate(msg tea.Msg, m Model) (Model, tea.Cmd) {
 			return m, nil
 
 		case key.Matches(msg, m.keys.Back):
-			m.setState(MAIN_STATE)
+			m.setState(MainState)
 			return m, nil
 
 		case key.Matches(msg, m.keys.Delete):
@@ -94,11 +94,11 @@ func inputUpdate(msg tea.Msg, m Model, iw inputView) (Model, tea.Cmd) {
 		case key.Matches(msg, m.keys.Confirm):
 			iw.confirmAction(&m, m.input.Value())
 			m.input.SetValue("")
-			m.setState(MAIN_STATE)
+			m.setState(MainState)
 			return m, cmd
 
 		case key.Matches(msg, m.keys.Back):
-			m.setState(MAIN_STATE)
+			m.setState(MainState)
 			return m, nil
 		}
 	}

@@ -48,7 +48,7 @@ func InitialModel() (*Model, error) {
 		cmdToggled: false,
 		header:     header,
 		input:      newTextInput(),
-		state:      MAIN_STATE,
+		state:      MainState,
 	}, nil
 }
 
