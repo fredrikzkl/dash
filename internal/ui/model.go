@@ -29,7 +29,7 @@ func (m Model) Init() tea.Cmd {
 }
 
 func InitialModel() (*Model, error) {
-	vp := viewport.New(vp_width, vp_height)
+	vp := viewport.New(vpWidth, vpHeight)
 	vp.Style = standardViewportStyle
 
 	header := "dash"

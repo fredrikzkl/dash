@@ -3,8 +3,8 @@ package ui
 import "github.com/charmbracelet/lipgloss"
 
 const (
-	vp_width  = 50
-	vp_height = 20
+	vpWidth  = 50
+	vpHeight = 20
 )
 
 var standardViewportStyle = lipgloss.NewStyle().
