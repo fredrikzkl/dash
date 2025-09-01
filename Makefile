@@ -24,8 +24,7 @@ fix-imports:
 build:
 	go build -o dash .
 
-install:
-	build
+install: build
 	sudo mv dash /usr/local/bin/dash
 
 run:
@@ -45,3 +44,9 @@ vet:
 
 modernize:
 	modernize -fix ./...
+
+tail:
+	tail -f debug.log
+
+clear-debug:
+	> debug.log

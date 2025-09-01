@@ -39,7 +39,7 @@ func SaveEntries(entries []Entry) error {
 		return err
 	}
 
-	return os.WriteFile(entriesPath, data, 0644)
+	return os.WriteFile(entriesPath, data, 0600)
 }
 
 func LoadEntries() ([]Entry, error) {

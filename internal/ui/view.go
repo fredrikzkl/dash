@@ -3,20 +3,23 @@ package ui
 import (
 	"fmt"
 	"strings"
-
-	"github.com/charmbracelet/lipgloss"
 )
 
 func (m Model) View() string {
 	var s string
 	switch m.state {
-	case MAIN_STATE:
+	case MainState:
 		s = mainView(m)
-	case ADD_STATE:
-		s += m.getDefaultAddInput()
+	case AddState:
+		s += m.getInputView(newEntryInputView)
+	case CommandState:
+		s += m.getInputView(editCmdInputView)
 	}
 
-	render(m.viewport, s)
+	lineCount := strings.Count(s, "\n")
+	m.viewport.Height = lineCount + 4
+
+	m.viewport.SetContent(s)
 
 	helpView := m.help.View(m.keys)
 	height := 1 - strings.Count(helpView, "\n")
@@ -26,22 +29,27 @@ func (m Model) View() string {
 }
 
 func mainView(m Model) string {
-	headerStyle := lipgloss.NewStyle().
-		MarginBottom(1)
-
 	s := headerStyle.Render(m.header) + "\n"
 
 	// Iterate over choices
 	for i, entry := range m.choices {
-		cursor := " " // nor cursor
+		num := i + 1
+		cursor := " " // no cursor
+
 		// Cursor at point
 		if m.cursor == i {
 			cursor = ">" // cursor!
+			line := fmt.Sprintf("%s %d. %s", cursor, num, entry.Name)
+			if m.cmdToggled && entry.Command != "" {
+				// line += cmdText.Render(" ", entry.Command, " ")
+				s += cmdToggledStyle.Render(line) + cmdText.Render(" ", entry.Command, " ")
+			} else {
+				s += hoverStyle.Render(line)
+			}
+			s += "\n"
+		} else {
+			s += fmt.Sprintf("%s %d. %s\n", cursor, num, entry.Name)
 		}
-
-		// render the row
-		num := i + 1
-		s += fmt.Sprintf("%s %d. %s\n", cursor, num, entry.Name)
 	}
 
 	if len(m.choices) == 0 {

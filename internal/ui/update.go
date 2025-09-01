@@ -8,18 +8,19 @@ import (
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch m.state {
-	case MAIN_STATE:
+	case MainState:
 		return mainUpdate(msg, m)
-	case ADD_STATE:
-		return addEntryUpdate(msg, m)
+	case AddState:
+		return inputUpdate(msg, m, newEntryInputView)
+	case CommandState:
+		return inputUpdate(msg, m, editCmdInputView)
 	}
 
 	return m, nil
 }
 
 func mainUpdate(msg tea.Msg, m Model) (Model, tea.Cmd) {
-	switch msg := msg.(type) {
-	case tea.KeyMsg:
+	if msg, ok := msg.(tea.KeyMsg); ok {
 		switch {
 		case key.Matches(msg, m.keys.Down):
 			m.moveCursor(true)
@@ -30,20 +31,42 @@ func mainUpdate(msg tea.Msg, m Model) (Model, tea.Cmd) {
 			return m, nil
 
 		case key.Matches(msg, m.keys.Confirm):
-			return m, dash(m.choices[m.cursor])
+			return m, dash(m.choices[m.cursor], m.cmdToggled)
 
+			// New entry input
 		case key.Matches(msg, m.keys.Add):
-			m.setState(ADD_STATE)
+			m.setState(AddState)
 
 			pwd, err := getPwd()
 			if err == nil {
-				m.input.SetValue(pwd)
-				m.input.SetCursor(len(pwd)) // Position cursor at end
+				presetInput(&m, pwd)
 			}
 			return m, nil
 
+			// Command Input
+		case key.Matches(msg, m.keys.Command):
+			m.setState(CommandState)
+
+			if !choiceExists(m) {
+				return m, nil
+			}
+
+			currentCmd := m.choices[m.cursor].Command
+			if currentCmd != "" {
+				presetInput(&m, currentCmd)
+			}
+
+			return m, nil
+
+		case key.Matches(msg, m.keys.ToggleCommand):
+			if m.choices[m.cursor].Command == "" {
+				return m, nil
+			}
+			toggleCmd(&m)
+			return m, nil
+
 		case key.Matches(msg, m.keys.Back):
-			m.setState(MAIN_STATE)
+			m.setState(MainState)
 			return m, nil
 
 		case key.Matches(msg, m.keys.Delete):
@@ -62,23 +85,25 @@ func mainUpdate(msg tea.Msg, m Model) (Model, tea.Cmd) {
 	return m, nil
 }
 
-func addEntryUpdate(msg tea.Msg, m Model) (Model, tea.Cmd) {
+func inputUpdate(msg tea.Msg, m Model, iw inputView) (Model, tea.Cmd) {
 	var cmd tea.Cmd
-	switch msg := msg.(type) {
-	case tea.KeyMsg:
+	if msg, ok := msg.(tea.KeyMsg); ok {
 		switch {
 		case key.Matches(msg, m.keys.Confirm):
-			entry, cmd := addNewEntry(m.input.Value())
-			m.choices = append(m.choices, entry)
+			iw.confirmAction(&m)
 			m.input.SetValue("")
-			m.setState(MAIN_STATE)
+			m.setState(MainState)
 			return m, cmd
 
 		case key.Matches(msg, m.keys.Back):
-			m.setState(MAIN_STATE)
+			m.setState(MainState)
 			return m, nil
 		}
 	}
 	m.input, cmd = m.input.Update(msg)
 	return m, cmd
+}
+
+func choiceExists(m Model) bool {
+	return m.cursor >= 0 && m.cursor < len(m.choices)
 }
