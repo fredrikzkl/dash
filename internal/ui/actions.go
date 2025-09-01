@@ -15,7 +15,8 @@ func dash(entry s.Entry, executeCommand bool) tea.Cmd {
 		customCommand += fmt.Sprintf("&& %s", entry.Command)
 	}
 
-	cmd := exec.Command("sh", "-c", fmt.Sprintf("cd %s %s && exec $SHELL", entry.Path, customCommand))
+	cmd := exec.Command("sh", "-c", fmt.Sprintf("cd %s %s && exec $SHELL", entry.Path, customCommand)) // #nosec G204
+
 	return tea.ExecProcess(cmd, func(err error) tea.Msg {
 		if err != nil {
 			return fmt.Errorf("failed to exectue dash: %w", err)
