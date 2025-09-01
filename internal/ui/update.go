@@ -1,10 +1,15 @@
 package ui
 
 import (
+	"regexp"
+	"strconv"
+
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/fredrikzkl/dash/internal/storage"
 )
+
+var digitKey = regexp.MustCompile(`^[1-9]$`)
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch m.state {
@@ -80,6 +85,10 @@ func mainUpdate(msg tea.Msg, m Model) (Model, tea.Cmd) {
 
 		case key.Matches(msg, m.keys.Quit):
 			return m, tea.Quit
+
+		case digitKey.MatchString(msg.String()):
+			tryJumpToEntry(&m, msg.String())
+			return m, nil
 		}
 	}
 	return m, nil
@@ -106,4 +115,17 @@ func inputUpdate(msg tea.Msg, m Model, iw inputView) (Model, tea.Cmd) {
 
 func choiceExists(m Model) bool {
 	return m.cursor >= 0 && m.cursor < len(m.choices)
+}
+
+func tryJumpToEntry(m *Model, digitStr string) error {
+	digit, err := strconv.Atoi(digitStr)
+	if err != nil {
+		return err
+	}
+
+	if digit > 0 && digit <= len(m.choices) {
+		m.cursor = digit - 1
+	}
+
+	return nil
 }
