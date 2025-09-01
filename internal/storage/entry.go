@@ -16,13 +16,3 @@ func NewEntry(path string) Entry {
 		Path: path,
 	}
 }
-
-// Testing
-func getMockEntries() []Entry {
-	warlockEntry := NewEntry("/Users/fredrik/vippsnummer")
-	smashedEntry := NewEntry("/Users/fredrik/shopping-basket")
-	return []Entry{
-		warlockEntry,
-		smashedEntry,
-	}
-}

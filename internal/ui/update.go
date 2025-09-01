@@ -92,7 +92,7 @@ func inputUpdate(msg tea.Msg, m Model, iw inputView) (Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch {
 		case key.Matches(msg, m.keys.Confirm):
-			iw.confirmAction(&m, m.input.Value())
+			iw.confirmAction(&m)
 			m.input.SetValue("")
 			m.setState(MainState)
 			return m, cmd

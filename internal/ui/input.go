@@ -10,13 +10,13 @@ import (
 type inputView struct {
 	description   string
 	placeholder   string
-	confirmAction func(m *Model, input string) tea.Cmd
+	confirmAction func(m *Model) tea.Cmd
 }
 
 var newEntryInputView = inputView{
 	description: "Add new directory",
 	placeholder: "Path",
-	confirmAction: func(m *Model, input string) tea.Cmd {
+	confirmAction: func(m *Model) tea.Cmd {
 		entry, cmd := addNewEntry(m.input.Value())
 		m.choices = append(m.choices, entry)
 		return cmd
@@ -26,8 +26,11 @@ var newEntryInputView = inputView{
 var editCmdInputView = inputView{
 	description: "Set cmd",
 	placeholder: "e.g nvim",
-	confirmAction: func(m *Model, input string) tea.Cmd {
-		editCommand(m)
+	confirmAction: func(m *Model) tea.Cmd {
+		if err := editCommand(m); err != nil {
+			return func() tea.Msg { return err }
+		}
+
 		return nil
 	},
 }
