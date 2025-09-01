@@ -36,7 +36,12 @@ func mainUpdate(msg tea.Msg, m Model) (Model, tea.Cmd) {
 			return m, nil
 
 		case key.Matches(msg, m.keys.Confirm):
-			return m, dash(m.choices[m.cursor], m.cmdToggled)
+			chosenEntry := m.choices[m.cursor]
+
+			cmd := dash(chosenEntry, m.cmdToggled)
+			moveEntryToTop(&m, chosenEntry)
+
+			return m, cmd
 
 			// New entry input
 		case key.Matches(msg, m.keys.Add):
@@ -128,4 +133,16 @@ func tryJumpToEntry(m *Model, digitStr string) error {
 	}
 
 	return nil
+}
+
+func moveEntryToTop(m *Model, entry storage.Entry) {
+	for i, e := range m.choices {
+		if e.Name == entry.Name {
+			copy(m.choices[i:], m.choices[i+1:])
+			m.choices = m.choices[:len(m.choices)-1]
+			break
+		}
+	}
+	m.choices = append([]storage.Entry{entry}, m.choices...)
+	storage.SaveEntries(m.choices)
 }
