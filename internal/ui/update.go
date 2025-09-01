@@ -85,7 +85,7 @@ func mainUpdate(msg tea.Msg, m Model) (Model, tea.Cmd) {
 			}
 			entries, _ := storage.DeleteEntry(m.choices[m.cursor])
 			m.choices = entries
-			m.cursor = 0
+			m.moveCursor(false)
 			return m, nil
 
 		case key.Matches(msg, m.keys.Quit):
