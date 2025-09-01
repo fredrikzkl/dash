@@ -20,8 +20,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func mainUpdate(msg tea.Msg, m Model) (Model, tea.Cmd) {
-	switch msg := msg.(type) {
-	case tea.KeyMsg:
+	if msg, ok := msg.(tea.KeyMsg); ok {
 		switch {
 		case key.Matches(msg, m.keys.Down):
 			m.moveCursor(true)
@@ -88,8 +87,7 @@ func mainUpdate(msg tea.Msg, m Model) (Model, tea.Cmd) {
 
 func inputUpdate(msg tea.Msg, m Model, iw inputView) (Model, tea.Cmd) {
 	var cmd tea.Cmd
-	switch msg := msg.(type) {
-	case tea.KeyMsg:
+	if msg, ok := msg.(tea.KeyMsg); ok {
 		switch {
 		case key.Matches(msg, m.keys.Confirm):
 			iw.confirmAction(&m)
