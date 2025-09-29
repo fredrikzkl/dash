@@ -83,11 +83,7 @@ func mainUpdate(msg tea.Msg, m Model) (Model, tea.Cmd) {
 			if len(m.choices) == 0 {
 				return m, nil
 			}
-			entries, _ := storage.DeleteEntry(m.choices[m.cursor])
-			m.choices = entries
-			if m.cursor != 0 {
-				m.moveCursor(false)
-			}
+			m.setState(ConfirmState)
 			return m, nil
 
 		case key.Matches(msg, m.keys.Quit):
@@ -117,6 +113,29 @@ func inputUpdate(msg tea.Msg, m Model, iw inputView) (Model, tea.Cmd) {
 		}
 	}
 	m.input, cmd = m.input.Update(msg)
+	return m, cmd
+}
+
+func confirmUpdate(msg tea.Msg, m Model) (Model, tea.Cmd) {
+	var cmd tea.Cmd
+
+	if msg, ok := msg.(tea.KeyMsg); ok {
+		switch {
+		case key.Matches(msg, m.keys.Confirm):
+			entries, _ := storage.DeleteEntry(m.choices[m.cursor])
+			m.choices = entries
+			if m.cursor != 0 {
+				m.moveCursor(false)
+			}
+			m.setState(MainState)
+			return m, cmd
+
+		case key.Matches(msg, m.keys.Back):
+			m.setState(MainState)
+			return m, nil
+		}
+	}
+
 	return m, cmd
 }
 

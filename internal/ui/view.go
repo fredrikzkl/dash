@@ -14,6 +14,8 @@ func (m Model) View() string {
 		s += m.getInputView(newEntryInputView)
 	case CommandState:
 		s += m.getInputView(editCmdInputView)
+	case ConfirmState:
+		s += confirmView(m)
 	}
 
 	lineCount := strings.Count(s, "\n")
@@ -55,5 +57,13 @@ func mainView(m Model) string {
 	if len(m.choices) == 0 {
 		s += "No entries"
 	}
+	return s
+}
+
+func confirmView(m Model) string {
+	selectedEntry := m.choices[m.cursor]
+	s := ""
+
+	s += fmt.Sprintf("Are you sure you want to delete %s?\n", selectedEntry.Name)
 	return s
 }
