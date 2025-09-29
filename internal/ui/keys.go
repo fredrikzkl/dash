@@ -13,6 +13,8 @@ type keyMap struct {
 	Help          key.Binding
 	Back          key.Binding
 	Quit          key.Binding
+	Yes           key.Binding
+	No            key.Binding
 }
 
 var keys = keyMap{
@@ -47,6 +49,12 @@ var keys = keyMap{
 	),
 	Quit: key.NewBinding(
 		key.WithKeys("q", "ctr+c"),
+	),
+	Yes: key.NewBinding(
+		key.WithKeys("y"),
+	),
+	No: key.NewBinding(
+		key.WithKeys("n"),
 	),
 }
 

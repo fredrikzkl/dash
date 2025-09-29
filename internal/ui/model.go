@@ -32,7 +32,7 @@ func InitialModel() (*Model, error) {
 	vp := viewport.New(vpWidth, vpHeight)
 	vp.Style = standardViewportStyle
 
-	header := "dash"
+	header := "Dash"
 
 	entries, err := storage.LoadEntries()
 	if err != nil {

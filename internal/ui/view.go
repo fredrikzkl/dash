@@ -64,6 +64,8 @@ func confirmView(m Model) string {
 	selectedEntry := m.choices[m.cursor]
 	s := ""
 
-	s += fmt.Sprintf("Are you sure you want to delete %s?\n", selectedEntry.Name)
-	return s
+	s += fmt.Sprintf("Are you sure you want to delete:\n '%s'\n\n", selectedEntry.Name)
+	s += "y/n\n"
+
+	return confirmStyle.Render(s)
 }

@@ -14,7 +14,7 @@ var standardViewportStyle = lipgloss.NewStyle().
 	PaddingLeft(2)
 
 var headerStyle = lipgloss.NewStyle().
-	Italic(true).
+	Bold(true).
 	MarginBottom(1)
 
 var hoverStyle = lipgloss.NewStyle().
@@ -25,3 +25,8 @@ var cmdToggledStyle = lipgloss.NewStyle().
 
 var cmdText = lipgloss.NewStyle().
 	Foreground(lipgloss.Color("#efefef"))
+
+var confirmStyle = lipgloss.NewStyle().
+	Padding(1).
+	PaddingLeft(2).
+	Align(lipgloss.Center)

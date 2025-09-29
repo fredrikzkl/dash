@@ -19,6 +19,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return inputUpdate(msg, m, newEntryInputView)
 	case CommandState:
 		return inputUpdate(msg, m, editCmdInputView)
+	case ConfirmState:
+		return confirmUpdate(msg, m)
 	}
 
 	return m, nil
@@ -121,7 +123,7 @@ func confirmUpdate(msg tea.Msg, m Model) (Model, tea.Cmd) {
 
 	if msg, ok := msg.(tea.KeyMsg); ok {
 		switch {
-		case key.Matches(msg, m.keys.Confirm):
+		case key.Matches(msg, m.keys.Yes):
 			entries, _ := storage.DeleteEntry(m.choices[m.cursor])
 			m.choices = entries
 			if m.cursor != 0 {
@@ -130,7 +132,7 @@ func confirmUpdate(msg tea.Msg, m Model) (Model, tea.Cmd) {
 			m.setState(MainState)
 			return m, cmd
 
-		case key.Matches(msg, m.keys.Back):
+		case key.Matches(msg, m.keys.No, m.keys.Back, m.keys.Quit):
 			m.setState(MainState)
 			return m, nil
 		}
